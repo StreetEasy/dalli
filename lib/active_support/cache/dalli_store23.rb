@@ -38,6 +38,7 @@ module ActiveSupport
         mem_cache_options = options.dup
         @namespace = mem_cache_options.delete(:namespace)
         @expires_in = mem_cache_options[:expires_in]
+
         @data = self.class.build_mem_cache(*(addresses + [mem_cache_options]))
 
         extend Strategy::LocalCache
@@ -163,9 +164,22 @@ module ActiveSupport
       end
 
       def escape_key(key)
+        if @autofix_keys && (key =~ /\s/ || key_length(key) > 200)
+          key = "#{Digest::SHA1.hexdigest(key)}-autofixed"
+        end
+
         prefix = @namespace.is_a?(Proc) ? @namespace.call : @namespace
         key = "#{prefix}:#{key}" if prefix
+
+        key = URI.escape(key)
         key
+      end
+
+      ##
+      # Calculate length of the key, including the namespace and namespace-separator.
+
+      def key_length(key)
+        key.length + (@namespace.nil? ? 0 : (@namespace.length + (@namespace_separator.nil? ? 0 : @namespace_separator.length)))
       end
     end
   end
