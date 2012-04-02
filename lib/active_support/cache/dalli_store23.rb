@@ -164,14 +164,15 @@ module ActiveSupport
       end
 
       def escape_key(key)
-        if @autofix_keys && (key =~ /\s/ || key_length(key) > 200)
+        key = URI.escape(key)
+
+        if @autofix_keys && (key =~ /\s/ || key_length(key) > 250)
           key = "#{Digest::SHA1.hexdigest(key)}-autofixed"
         end
 
         prefix = @namespace.is_a?(Proc) ? @namespace.call : @namespace
         key = "#{prefix}:#{key}" if prefix
 
-        key = URI.escape(key)
         key
       end
 
