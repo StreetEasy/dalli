@@ -306,7 +306,11 @@ module Dalli
       if status == 1
         nil
       elsif status != 0
-        raise Dalli::DalliError, "Response error #{status}: #{RESPONSE_CODES[status]}"
+        exception = Dalli::DalliError, "Response error #{status}: #{RESPONSE_CODES[status]}" 
+        if defined? Alert
+          Alert.exception("Dalli Exception", exception)
+        end
+        raise exception
       elsif data
         flags = data[0...extras].unpack('N')[0]
         value = data[extras..-1]
@@ -329,7 +333,11 @@ module Dalli
       elsif status == 2 || status == 5
         false # Not stored, normal status for add operation
       elsif status != 0
-        raise Dalli::DalliError, "Response error #{status}: #{RESPONSE_CODES[status]}"
+        exception = Dalli::DalliError, "Response error #{status}: #{RESPONSE_CODES[status]}" 
+        if defined? Alert
+          Alert.exception("Dalli Exception", exception)
+        end
+        raise exception
       elsif data
         flags = data[0...extras].unpack('N')[0]
         value = data[extras..-1]
