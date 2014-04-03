@@ -166,7 +166,7 @@ module ActiveSupport
       def escape_key(key)
         key = URI.escape(key)
 
-        if @autofix_keys && (key =~ /\s/ || key_length(key) > 250)
+        if (key =~ /\s/ || key_length(key) >= 250)
           key = "#{Digest::SHA1.hexdigest(key)}-autofixed"
         end
 
